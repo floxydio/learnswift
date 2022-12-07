@@ -57,6 +57,33 @@ struct ContentView: View {
 }
 
 
+struct TabBarViewHome: View {
+    var body: some View {
+        ZStack{
+            TabView{
+                HomeView().tabItem {
+                    Image(systemName: "house.fill")
+                    Text("Home")
+                }
+                AboutView().tabItem {
+                                   Image(systemName: "paperplane.fill")
+                                   Text("Explore")
+                               }
+                HomeView().tabItem {
+                                   Image(systemName: "tray.fill")
+                                   Text("Subscription")
+                               }
+                HomeView().tabItem {
+                                   Image(systemName: "envelope.fill")
+                                   Text("Kotak Masuk")
+                               }
+            }
+        }.accentColor(Color.red)
+    }
+    
+}
+
+
 struct HomeView: View {
     var body: some View {
         NavigationView{
@@ -133,9 +160,41 @@ struct ContentList: View {
 }
 
 
+struct FetchApiPreview: View {
+        @State var results = [TaskEntry]()
+    func loadData() {
+        guard let url = URL(string:"https://jsonplaceholder.typicode.com/todos") else {
+            print("Error")
+            return
+        }
+        let request =  URLRequest(url: url)
+        
+        
+        URLSession.shared.dataTask(with: request) {
+            data,response, error in if let data = data {
+                if let response = try? JSONDecoder().decode([TaskEntry].self, from: data) {
+                    DispatchQueue.main.async {
+                            self.results = response
+                        
+                    }
+                    return
+                }
+            }
+        }.resume()
+    }
+    var body: some View {
+        List(results, id: \.id) {
+            item in VStack(alignment: .leading){
+                Text(item.title)
+            }
+        }.onAppear(perform: loadData)
+    }
+}
+
+
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView()
+        TabBarViewHome()
     }
 }
 
